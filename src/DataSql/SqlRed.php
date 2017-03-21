@@ -10,6 +10,8 @@ namespace Costa92\Wechat\DataSql;
 
 use Costa92\Wechat\DataSql\DataSql;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Carbon\Carbon;
 
 class SqlRed implements DataSql
 {

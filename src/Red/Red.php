@@ -15,12 +15,16 @@ class Red
     private $app_id = '';
     private $app_secret = '';
     private $app_mchid = '';
-
+    private $app_key = '';
+    private $apiclient_cert = '';
+    private $apiclient_key = '';
+    private  $rootca ="";
     protected $_nick_name;
     protected $_send_name;
     protected $_send_activict;
     protected $_send_cash;
     protected $_send_wishing;
+
 
     /**
      * Red constructor.
@@ -34,12 +38,16 @@ class Red
     {
         $this->app_id         =  $data->wechat->appid;
         $this->app_secret     =  $data->wechat->secret;
-        $this->_nick_name     =  $data->name;
-        $this->_send_name     =  $send_name?$send_name:self::$wx_config['_send_name'];
-        $this->_send_cash     =  $send_cash?$send_cash:self::$wx_config['_send_cash'];
+        $this->_nick_name     =  $data->hasRed->nick_name;
+        $this->_send_name     =  $data->hasRed->send_name;
+        $this->_send_cash     =  $data->hasRed->send_cash;
         $this->app_mchid      =  $data->wechat->app_mchid;
         $this->_send_activict =  $data->name;
-        $this->_send_wishing  =  $send_wishing;
+        $this->_send_wishing  =  $data->hasRed->send_wishing;
+        $this->app_key  = $data->wechat->app_key;
+        $this->apiclient_cert  = $data->wechat->apiclient_cert;
+        $this->apiclient_key  = $data->wechat->apiclient_key;
+        $this->rootca = $data->wechat->rootca;
     }
 
     /**
@@ -51,8 +59,13 @@ class Red
     public function pay($re_openid,$db=null)
     {
         include_once('WxHongBaoHelper.php');
-        $commonUtil = new CommonUtil();
         $wxHongBaoHelper = new WxHongBaoHelper();
+
+        $wxHongBaoHelper->set("key",$this->app_key);
+        $wxHongBaoHelper->set("apiclient_cert",$this->apiclient_cert );
+        $wxHongBaoHelper->set("apiclient_key",$this->apiclient_key );
+        $wxHongBaoHelper->set("rootca",$this->rootca);
+        $wxHongBaoHelper->set("mch_id",$this->app_mchid);
 
         $wxHongBaoHelper->setParameter("nonce_str", $this->great_rand());//随机字符串，丌长于 32 位
         $wxHongBaoHelper->setParameter("mch_billno", $this->app_mchid.date('YmdHis').rand(1000, 9999));//订单号
@@ -69,6 +82,9 @@ class Red
         $wxHongBaoHelper->setParameter("client_ip", '127.0.0.1');//调用接口的机器 Ip 地址
         $wxHongBaoHelper->setParameter("act_name", $this->_send_activict);//活劢名称
         $wxHongBaoHelper->setParameter("remark", '快来抢！');//备注信息
+
+
+
         $postXml = $wxHongBaoHelper->create_hongbao_xml();
         $url = 'https://api.mch.weixin.qq.com/mmpaymkttransfers/sendredpack';
         $responseXml = $wxHongBaoHelper->curl_post_ssl($url, $postXml);
@@ -107,22 +123,6 @@ class Red
         echo "</script>";
     }
 
-    /**
-     * 获取授权token
-     *
-     * @param string $code 通过get_authorize_url获取到的code
-     */
-    public function get_access_token($code = '')
-    {
-//         $token_url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid={$this->app_id}&secret={$this->app_secret}&code={$code}&grant_type=authorization_code";
-        $token_data = $this->http($token_url);
-        if(!empty($token_data[0]))
-        {
-            return json_decode($token_data[0], TRUE);
-        }
-
-        return FALSE;
-    }
 
     /**
      * 获取授权后的微信用户信息
