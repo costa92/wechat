@@ -11,8 +11,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Costa92\\Wechat\\": "src/",
-            "files": ["src/functions.php"]
+            "Costa92\\Wechat\\": "src/"
         }
     }
 }
