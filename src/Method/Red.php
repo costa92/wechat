@@ -17,16 +17,21 @@ class Red
     }
 
     public function pay($table="",$data,$openid="",$uid = 0){
+        if($data->hasRed->count - $data->hasRed->residue_count > 0){
 
+            // 保存请求红包
+            $arr_data =array(
+                'x_uid'=>$uid,
+                'red'=>$data->hasRed->send_cash,
+            );
+            $this->save($table,$arr_data);
+            // 更新活动红包数据
+            $data->hasRed->residue_count++;
+            $data->hasRed->update();
 
-         $arr_data =array(
-             'x_uid'=>$uid,
-             'red'=>$data->hasRed->send_cash,
-         );
-         $this->save($table,$arr_data);
-
-        $red =  new PayRed($data);
-        $red->pay($openid);
+            $red =  new PayRed($data);
+            $red->pay($openid);
+        }
     }
 
 
