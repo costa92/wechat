@@ -21,7 +21,7 @@ class WechatService
 
     }
 
-    public function method($method=""){
+    public function WechatMethod($method=""){
         if($method){
            return  $this->reflection(Wechat::class,$method);
         }
